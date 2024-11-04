@@ -1,25 +1,28 @@
 package com.mreblan.textchecker.parsers.impl;
 
-import org.jsoup.Jsoup;
-import org.jsoup.WhiteList;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import com.mreblan.textchecker.parsers.Parser;
+
+import lombok.extern.slf4j.Slf4j;
 
 import com.mreblan.textchecker.models.Article;
 
-import lombok.Data;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-@Data
+@Slf4j
 @Component
 public class HTMLParser implements Parser {
-    
-    @Autowired
-    public HTMLParser() {}
 
-    Article deleteTags(Article article) {
-        String content = article.getContent();
-        String cleanedContent = Jsoup.clean(content, WhiteList.none());
+  @Autowired
+  public HTMLParser() {}
 
-        return new Article(article.getTitle(), cleanedContent);
-    }
+  public Article deleteTags(Article article) {
+    String content = article.getContent();
+    String cleanedContent = Jsoup.clean(content, Safelist.none());
+
+    log.info("CLEANED CONTENT: {}", cleanedContent);
+    return new Article(article.getTitle(), cleanedContent);
+  }
 }
