@@ -12,14 +12,15 @@ import org.springframework.web.client.RestClient;
 import com.mreblan.textchecker.ai.YandexGptProperties;
 import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.Response;
-import com.mreblan.textchecker.models.YandexGptRequest;
+import com.mreblan.textchecker.models.yandexgpt.YandexGptRequest;
 import com.mreblan.textchecker.models.yandexgpt.YandexGptCompletionOptions;
 import com.mreblan.textchecker.models.yandexgpt.YandexGptMessage;
 import com.mreblan.textchecker.services.AISender;
 
 import lombok.extern.slf4j.Slf4j;
 
-// TODO: Implement class
+// TODO: Implement response processor
+// TODO: Implement final response maker
 
 @Slf4j
 @Component
@@ -31,6 +32,8 @@ public class YandexGptSender implements AISender {
     public YandexGptSender(YandexGptProperties props) {
       this.properties = props;
     }
+
+    public YandexGptSender() {}
 
     public Response sendArticle(Article article) {
 
@@ -58,21 +61,21 @@ public class YandexGptSender implements AISender {
             article.getContent()
         ));
 
-        YandexGptRequest request = new YandexGptSender();
+        YandexGptRequest request = new YandexGptRequest();
       
         request.setModelUri(modelUri);
         request.setCompletionOptions(opts);
         request.setMessages(msgs);
 
-        log.info("REQUEST TO YANDEXGPT: {}", request);
+        log.info("REQUEST TO YANDEXGPT: {}", request.toString());
 
-        ResponseEntity<Void> response = restClient.post()
+        String response = restClient.post()
                                                   .contentType(MediaType.APPLICATION_JSON)
                                                   .body(request)
                                                   .retrieve()
-                                                  .toBodilessEntity();
+                                                  .body(String.class);
 
-        log.info("YANDEXGPT RESPONSE: {}", response);
+        log.info("YANDEXGPT RESPONSE: {}", response.toString());
 
         return new Response(true, "rules");
     } 

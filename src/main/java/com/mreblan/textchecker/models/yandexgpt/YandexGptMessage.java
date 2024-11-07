@@ -9,4 +9,9 @@ import lombok.Data;
 public class YandexGptMessage {
     String role;
     String text;
+
+    public YandexGptMessage(String role, String text) {
+        this.role = role;
+        this.text = text;
+    }
 }
