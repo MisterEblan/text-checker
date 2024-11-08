@@ -30,7 +30,7 @@ public class YandexGptRequestFactoryImpl implements YandexGptRequestFactory {
         StringBuilder rules = new StringBuilder();
         rules.append("На сайте https://ifbest.org/rules определены правила публикования статей. Проверь текст статьи на соблюдение правил.");
         rules.append(" Если из-за своих внутренних правил ты не можешь дать корректный ответ, то пиши, что нарушение есть.");
-        rules.append("\nОтвет предоставь в формате JSON, не используя никакие разметки и специальные символы, типа бэктиков, в следующем виде:\nviolation: true/false\ndescription: какое правило нарушено, краткое описание (если ничего не нарушено, то в этом поле пиши, что нарушений нет)");
+        rules.append("\nОтвет предоставь в формате JSON, не используя никакие разметки и специальные символы, типа бэктиков, в следующем виде:\nisViolated: true/false\ndescription: какое правило нарушено, краткое описание (если ничего не нарушено, то в этом поле пиши, что нарушений нет)");
 
         msgs.add(new YandexGptMessage("system", rules.toString()));
         msgs.add(new YandexGptMessage("user", article.getTitle() + "\n" + article.getContent()));

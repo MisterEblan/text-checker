@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mreblan.textchecker.ai.YandexGptProperties;
 import com.mreblan.textchecker.factories.YandexGptRequestFactory;
@@ -44,7 +45,7 @@ public class YandexGptSender implements AISender {
     }
 
     @Override
-    public Response sendArticle(Article article) {
+    public Response sendArticle(Article article) throws RuntimeException {
 
         log.info("ARTICLE CONTENT: {}", article.getContent());
 
@@ -71,21 +72,28 @@ public class YandexGptSender implements AISender {
 
         log.info("YANDEXGPT RESPONSE: {}", response.toString());
 
-        YandexGptMessage responseMessage = new YandexGptMessage(null, null);
-        Response finalResponse = new Response();
+        if (response.getStatusCode().is2xxSuccessful()) {
 
-        try {
-            responseMessage = processAiResponse(response);
-            finalResponse   = responseMaker(responseMessage.getText());
-        } catch (JsonProcessingException e) {
-            log.error("ERROR WITH PROCESSING JSON!");
-            e.printStackTrace();
+            YandexGptMessage responseMessage = new YandexGptMessage(null, null);
+            Response finalResponse = new Response();
+
+            try {
+                responseMessage = processAiResponse(response);
+                finalResponse   = responseMaker(responseMessage.getText());
+            } catch (JsonProcessingException e) {
+                log.error("ERROR WITH PROCESSING JSON!");
+                e.printStackTrace();
+
+                return new Response(true, "Нейросеть не смогла обработать запрос");
+            }
+
+            log.info("YANDEXGPT RESPONSE MESSAGE: {}", responseMessage.toString());
+            log.info("FINAL RESPONSE: {}", finalResponse.toString());
+
+            return finalResponse;
+        } else {
+            throw new RuntimeException("Response to request" + request.toString() + " wasn't successful!");
         }
-
-        log.info("YANDEXGPT RESPONSE MESSAGE: {}", responseMessage.toString());
-        log.info("FINAL RESPONSE: {}", finalResponse.toString());
-
-        return finalResponse;
     } 
 
     private YandexGptMessage processAiResponse(ResponseEntity<String> response) throws JsonProcessingException {
@@ -107,6 +115,14 @@ public class YandexGptSender implements AISender {
 
     private Response responseMaker(String jsonText) throws JsonProcessingException {
         jsonText = jsonText.replace("`", "");
-        return objMapper.readValue(jsonText, Response.class);
+
+        Map<String, Object> tempMap = objMapper.readValue(jsonText, new TypeReference<Map<String, Object>>() {});
+
+        Response response = new Response();
+
+        response.setViolated((Boolean) tempMap.get("isViolated"));
+        response.setDescription((String) tempMap.get("description"));
+
+        return response;
     }
 }
