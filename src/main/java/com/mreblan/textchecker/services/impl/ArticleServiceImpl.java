@@ -24,6 +24,7 @@ public class ArticleServiceImpl implements ArticleService {
       this.yandexGptSender = sender;
   }
 
+  @Override
   public Response processArticle(Article article) {
     Article cleanedArtical = htmlParser.deleteTags(article);
     log.info("CLEANED ARTICLE: {}", cleanedArtical.toString());

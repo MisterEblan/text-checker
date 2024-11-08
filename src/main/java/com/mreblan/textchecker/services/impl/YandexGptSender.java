@@ -13,6 +13,8 @@ import org.springframework.web.client.RestClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mreblan.textchecker.ai.YandexGptProperties;
+import com.mreblan.textchecker.factories.YandexGptRequestFactory;
+import com.mreblan.textchecker.factories.impl.YandexGptRequestFactoryImpl;
 import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.Response;
 import com.mreblan.textchecker.models.yandexgpt.request.YandexGptRequest;
@@ -21,6 +23,7 @@ import com.mreblan.textchecker.models.yandexgpt.request.YandexGptCompletionOptio
 import com.mreblan.textchecker.models.yandexgpt.YandexGptMessage;
 import com.mreblan.textchecker.services.AISender;
 
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 // TODO: Clean Code
@@ -31,15 +34,16 @@ public class YandexGptSender implements AISender {
 
     private final YandexGptProperties properties;
     private final ObjectMapper objMapper;
+    private YandexGptRequestFactory requestFactory;
 
     @Autowired
-    public YandexGptSender(YandexGptProperties props, ObjectMapper objMapper) {
+    public YandexGptSender(YandexGptProperties props, ObjectMapper objMapper, YandexGptRequestFactoryImpl requestFactory) {
         this.properties = props;
         this.objMapper = objMapper;
+        this.requestFactory = requestFactory;
     }
 
-    // public YandexGptSender() {}
-
+    @Override
     public Response sendArticle(Article article) {
 
         log.info("ARTICLE CONTENT: {}", article.getContent());
@@ -49,40 +53,16 @@ public class YandexGptSender implements AISender {
                                 .defaultHeaders(
                                   httpHeader -> {
                                     httpHeader.set("Content-Type", "application/json");
-                                    httpHeader.set("Authorization", String.format("Api-key %s", "AQVNy6vXGE9Z-pXfTuz7P13EmGtktdTaSxBH9_iT"));
                                     httpHeader.set("x-folder-id", "b1gahi2sqctvfmqblvtl");
                                   })
                                 .build();
 
-        String modelUri = String.format("gpt://%s/yandexgpt-lite", properties.getFOLDER_ID());
-        YandexGptCompletionOptions opts = new YandexGptCompletionOptions(false, 0.2f, "1000");
-        List<YandexGptMessage> msgs = new ArrayList<>();
-        StringBuilder rules = new StringBuilder();
-
-        rules.append("На сайте https://ifbest.org/rules определены правила публикования статей. Проверь текст статьи на соблюдение правил.");
-        rules.append(" Если из-за своих внутренних правил ты не можешь дать корректный ответ, то пиши, что нарушение есть.");
-        rules.append("\nОтвет предоставь в формате JSON, не используя никакие разметки и специальные символы, типа бэктиков, в следующем виде:\nviolation: true/false\ndescription: какое правило нарушено, краткое описание (если ничего не нарушено, то в этом поле пиши, что нарушений нет)");
-
-        msgs.add(new YandexGptMessage(
-            "system",
-            rules.toString()
-        ));
-
-        msgs.add(new YandexGptMessage(
-            "user",
-            article.getContent()
-        ));
-
-        YandexGptRequest request = new YandexGptRequest();
-      
-        request.setModelUri(modelUri);
-        request.setCompletionOptions(opts);
-        request.setMessages(msgs);
-
+        YandexGptRequest request = requestFactory.createRequest(article);
+        
         log.info("REQUEST TO YANDEXGPT: {}", request.toString());
         log.info("MESSAGES: {}", request.getMessages().toString());
 
-        ResponseEntity<String> response = restClient.post()
+        ResponseEntity<String> response = restClient.post().header("Authorization", String.format("Api-key %s", properties.getAPI_KEY()))
                                                   .contentType(MediaType.APPLICATION_JSON)
                                                   .body(request)
                                                   .retrieve()

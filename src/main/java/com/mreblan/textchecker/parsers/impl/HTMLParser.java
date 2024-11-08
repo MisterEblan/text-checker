@@ -18,6 +18,7 @@ public class HTMLParser implements Parser {
   @Autowired
   public HTMLParser() {}
 
+  @Override
   public Article deleteTags(Article article) {
     String content = article.getContent();
     String cleanedContent = Jsoup.clean(content, Safelist.none());
