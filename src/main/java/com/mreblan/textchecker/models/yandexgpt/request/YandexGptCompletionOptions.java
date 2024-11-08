@@ -1,4 +1,4 @@
-package com.mreblan.textchecker.models.yandexgpt;
+package com.mreblan.textchecker.models.yandexgpt.request;
 
 import org.springframework.stereotype.Component;
 

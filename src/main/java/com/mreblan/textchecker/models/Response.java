@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Component
 public class Response {
-    boolean isViolated;
-    String  descripton;
+    private boolean isViolated;
+    private String  description;
 }
