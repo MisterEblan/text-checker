@@ -27,8 +27,12 @@ public class ArticleServiceImpl implements ArticleService {
   @Override
   public Response processArticle(Article article) {
     Article cleanedArtical = htmlParser.deleteTags(article);
+    // Дополнительно логируем очищенный контент
+    // Чтобы убедиться, что всё прошло нормально
     log.info("CLEANED ARTICLE: {}", cleanedArtical.toString());
 
+    // Передаём очищенный контент
+    // в нейросеть и получаем оттуда ответ
     return yandexGptSender.sendArticle(cleanedArtical);
   }
 }
