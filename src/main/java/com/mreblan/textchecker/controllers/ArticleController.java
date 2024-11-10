@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mreblan.textchecker.models.Response;
-import com.mreblan.textchecker.services.ArticleService;
+import com.mreblan.textchecker.services.IArticleService;
 import com.mreblan.textchecker.services.impl.ArticleServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import com.mreblan.textchecker.models.Article;
 @RequestMapping("/api/articles")
 public class ArticleController {
 
-    private final ArticleService service;
+    private final IArticleService service;
 
     @Autowired
     public ArticleController(ArticleServiceImpl serviceImpl) {

@@ -1,6 +1,6 @@
 package com.mreblan.textchecker.parsers.impl;
 
-import com.mreblan.textchecker.parsers.Parser;
+import com.mreblan.textchecker.parsers.IParser;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class HTMLParser implements Parser {
+public class HTMLParser implements IParser {
 
   @Autowired
   public HTMLParser() {}

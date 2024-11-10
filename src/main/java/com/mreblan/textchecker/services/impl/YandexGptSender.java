@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mreblan.textchecker.ai.YandexGptProperties;
-import com.mreblan.textchecker.factories.YandexGptRequestFactory;
+import com.mreblan.textchecker.factories.IYandexGptRequestFactory;
 import com.mreblan.textchecker.factories.impl.YandexGptRequestFactoryImpl;
 import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.Response;
@@ -22,7 +22,7 @@ import com.mreblan.textchecker.models.yandexgpt.request.YandexGptRequest;
 import com.mreblan.textchecker.models.yandexgpt.response.YandexGptResponse;
 import com.mreblan.textchecker.models.yandexgpt.request.YandexGptCompletionOptions;
 import com.mreblan.textchecker.models.yandexgpt.YandexGptMessage;
-import com.mreblan.textchecker.services.AISender;
+import com.mreblan.textchecker.services.IAiSender;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +31,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class YandexGptSender implements AISender {
+public class YandexGptSender implements IAiSender {
 
     private final YandexGptProperties properties;
     private final ObjectMapper objMapper;
-    private YandexGptRequestFactory requestFactory;
+    private IYandexGptRequestFactory requestFactory;
 
     @Autowired
     public YandexGptSender(YandexGptProperties props, ObjectMapper objMapper, YandexGptRequestFactoryImpl requestFactory) {

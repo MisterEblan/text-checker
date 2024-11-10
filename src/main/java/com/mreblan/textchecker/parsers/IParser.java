@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.mreblan.textchecker.models.Article;
 
 @Component
-public interface Parser {
+public interface IParser {
 
     Article deleteTags(Article article);
 }
