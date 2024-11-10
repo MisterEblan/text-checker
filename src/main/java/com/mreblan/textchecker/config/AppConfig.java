@@ -1,24 +1,19 @@
 package com.mreblan.textchecker.config;
 
-import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
 
-import com.mreblan.textchecker.ai.YandexGptProperties;
-import com.mreblan.textchecker.factories.impl.YandexGptRequestFactoryImpl;
+// import com.mreblan.textchecker.ai.YandexGptProperties;
+// import com.mreblan.textchecker.factories.impl.YandexGptRequestFactoryImpl;
 
 @Configuration
 public class AppConfig {
 
-    // @Value("${yandex.key.value}")
-    // private String API_KEY;
-    //
-    // @Value("${yandex.folder.id}")
-    // private String FOLDER_ID;
-
     @Bean
     public String string() {
-        return "";
+        return new String();
     }
 
     @Bean
@@ -29,6 +24,17 @@ public class AppConfig {
     @Bean
     public float floatNum() {
         return 0.0f;
+    }
+
+    @Bean
+    public RestClient restClient() {
+        return RestClient.builder()
+            .baseUrl("https://llm.api.cloud.yandex.net/foundationModels/v1/completion")
+            .defaultHeaders(
+                httpHeader -> {
+                    httpHeader.set("Content-Type", "application/json");
+                })
+            .build();
     }
 
     // @Bean

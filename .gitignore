@@ -35,4 +35,4 @@ build/
 mvnw
 mvnw.cmd
 
-# application.properties
+application.properties

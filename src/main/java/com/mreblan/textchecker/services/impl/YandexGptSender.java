@@ -35,29 +35,22 @@ public class YandexGptSender implements IAiSender {
 
     private final YandexGptProperties properties;
     private final ObjectMapper objMapper;
-    private IYandexGptRequestFactory requestFactory;
+    private final IYandexGptRequestFactory requestFactory;
+    private final RestClient restClient;
 
     @Autowired
-    public YandexGptSender(YandexGptProperties props, ObjectMapper objMapper, YandexGptRequestFactoryImpl requestFactory) {
+    public YandexGptSender(YandexGptProperties props, ObjectMapper objMapper, YandexGptRequestFactoryImpl requestFactory, RestClient client) {
         this.properties = props;
         this.objMapper = objMapper;
         this.requestFactory = requestFactory;
+        this.restClient = client;
     }
 
     @Override
-    public Response sendArticle(Article article) throws RuntimeException {
+    public Response sendArticle(Article article) {
 
         // Логируем пришедшую статью
         log.info("ARTICLE CONTENT: {}", article.getContent());
-
-        // Создаём RestClient для отправки запроса
-        RestClient restClient = RestClient.builder()
-                                .baseUrl("https://llm.api.cloud.yandex.net/foundationModels/v1/completion")
-                                .defaultHeaders(
-                                  httpHeader -> {
-                                    httpHeader.set("Content-Type", "application/json");
-                                  })
-                                .build();
 
         // Создаём запрос
         YandexGptRequest request = requestFactory.createRequest(article);
@@ -108,9 +101,9 @@ public class YandexGptSender implements IAiSender {
             // Возвращаем ответ
             return finalResponse;
         } else {
-            // Если запрос был неудачный,
-            // кидаем исключение
-            throw new RuntimeException("Response to request" + request.toString() + " wasn't successful!");
+            // Если запрос к нейросети закончился ошибкой,
+            // то возвращаем соответствующий ответ
+            return new Response(true, "Ошибка в отправке запроса нейросети");
         }
     } 
 
