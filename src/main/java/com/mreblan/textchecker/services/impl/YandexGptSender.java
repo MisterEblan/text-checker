@@ -1,7 +1,5 @@
 package com.mreblan.textchecker.services.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +18,9 @@ import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.Response;
 import com.mreblan.textchecker.models.yandexgpt.request.YandexGptRequest;
 import com.mreblan.textchecker.models.yandexgpt.response.YandexGptResponse;
-import com.mreblan.textchecker.models.yandexgpt.request.YandexGptCompletionOptions;
 import com.mreblan.textchecker.models.yandexgpt.YandexGptMessage;
 import com.mreblan.textchecker.services.IAiSender;
 
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 // TODO: Clean Code
@@ -81,8 +77,15 @@ public class YandexGptSender implements IAiSender {
             try {
                 // Парсим JSON-ответ, получая из него только нужные элементы
                 responseMessage = processAiResponse(response);
-                // Формируем финальный ответ
-                finalResponse   = responseMaker(responseMessage.getText());
+                // Проверяем, что поля получившегося сообщения не null
+                if (
+                responseMessage.getRole() != null && 
+                responseMessage.getText() != null
+                ) {
+                    finalResponse   = responseMaker(responseMessage.getText());
+                } else {
+                    finalResponse = new Response(true, "Не удалось распарсить ответ нейросети");
+                }
             } catch (JsonProcessingException e) {
                 log.error("ERROR WITH PROCESSING JSON!");
                 e.printStackTrace();
@@ -128,7 +131,6 @@ public class YandexGptSender implements IAiSender {
         }   
 
         // В противном случае возвращаем пустое сообщение
-        // TODO: Сделать проверку в главном коде
         return new YandexGptMessage(null, null);
     }
 
