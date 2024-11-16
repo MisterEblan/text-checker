@@ -84,10 +84,11 @@ public class YandexGptSender implements IAiSender {
                 ) {
                     finalResponse   = responseMaker(responseMessage.getText());
                 } else {
+                    log.warn("RESPONSE MESSAGE IS NULL");
                     finalResponse = new Response(true, "Не удалось распарсить ответ нейросети");
                 }
             } catch (JsonProcessingException e) {
-                log.error("ERROR WITH PROCESSING JSON!");
+                log.error("ERROR PROCESSING JSON!");
                 e.printStackTrace();
 
                 // Если мы не смогли распарсить ответ,
@@ -130,6 +131,8 @@ public class YandexGptSender implements IAiSender {
             return new YandexGptMessage(role, text);
         }   
 
+        log.warn("RESPONES PROCESSED WITH ERRORS");
+
         // В противном случае возвращаем пустое сообщение
         return new YandexGptMessage(null, null);
     }
@@ -142,14 +145,10 @@ public class YandexGptSender implements IAiSender {
         // Создаём временную мапу, где будут содержатся значения
         Map<String, Object> tempMap = objMapper.readValue(jsonText, new TypeReference<Map<String, Object>>() {});
 
-        // Создаём новый ответ
-        Response response = new Response();
-
-        // Записываем полученные от нейросети значения.
-        // Нужно для большей надёжности
-        response.setViolated((Boolean) tempMap.get("isViolated"));
-        response.setDescription((String) tempMap.get("description"));
-
-        return response;
+        // Возвращаем новый ответ
+        return new Response(
+            (Boolean) tempMap.get("isViolated"),
+            (String) tempMap.get("description")
+        );
     }
 }
