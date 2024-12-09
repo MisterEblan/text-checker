@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mreblan.textchecker.config.OpenAiProperties;
+import com.mreblan.textchecker.factories.IGptRequestFactory;
 import com.mreblan.textchecker.factories.impl.OpenAiRequestFactoryImpl;
 import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.Response;
@@ -30,12 +31,13 @@ import lombok.extern.slf4j.Slf4j;
 public class OpenAiService implements IAiSender {
 
 	private final RestClient restClient;
+	private final IGptRequestFactory<OpenAiRequest> openAiRequestFactory;
 	private final ObjectMapper objMapper;
 
 	@Override
 	public Response sendArticle(Article article) {
 
-		OpenAiRequest request = OpenAiRequestFactoryImpl.createRequest(article);
+		OpenAiRequest request = openAiRequestFactory.createRequest(article);
 
 		log.info("REQUEST: {}", request.toString());
 

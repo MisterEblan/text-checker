@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mreblan.textchecker.config.YandexGptProperties;
-import com.mreblan.textchecker.factories.IYandexGptRequestFactory;
+import com.mreblan.textchecker.factories.IGptRequestFactory;
 import com.mreblan.textchecker.factories.impl.YandexGptRequestFactoryImpl;
 import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.Response;
@@ -23,24 +23,19 @@ import com.mreblan.textchecker.models.yandexgpt.response.YandexGptResponse;
 import com.mreblan.textchecker.models.yandexgpt.YandexGptMessage;
 import com.mreblan.textchecker.services.IAiSender;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 // TODO: Clean Code
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class YandexGptSender implements IAiSender {
 
     private final ObjectMapper objMapper;
-    private final IYandexGptRequestFactory requestFactory;
+    private final IGptRequestFactory<YandexGptRequest> yandexRequestFactory;
     private final RestClient restClient;
-
-    @Autowired
-    public YandexGptSender(ObjectMapper objMapper, YandexGptRequestFactoryImpl requestFactory, RestClient client) {
-        this.objMapper = objMapper;
-        this.requestFactory = requestFactory;
-        this.restClient = client;
-    }
 
     @Override
     public Response sendArticle(Article article) {
@@ -49,7 +44,7 @@ public class YandexGptSender implements IAiSender {
         log.info("ARTICLE CONTENT: {}", article.getContent());
 
         // Создаём запрос
-        YandexGptRequest request = requestFactory.createRequest(article);
+        YandexGptRequest request = yandexRequestFactory.createRequest(article);
         
         // Логируем запрос
         log.info("REQUEST TO YANDEXGPT: {}", request.getCompletionOptions().getTemperature());

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.mreblan.textchecker.config.YandexGptProperties;
-import com.mreblan.textchecker.factories.IYandexGptRequestFactory;
+import com.mreblan.textchecker.factories.IGptRequestFactory;
 import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.yandexgpt.YandexGptMessage;
 import com.mreblan.textchecker.models.yandexgpt.request.YandexGptCompletionOptions;
@@ -15,7 +15,7 @@ import com.mreblan.textchecker.models.yandexgpt.request.YandexGptRequest;
 
 // Фабрика, создающая запросы в YandexGPT
 @Component 
-public class YandexGptRequestFactoryImpl implements IYandexGptRequestFactory {
+public class YandexGptRequestFactoryImpl implements IGptRequestFactory<YandexGptRequest> {
 
     @Override
     public YandexGptRequest createRequest(Article article) {

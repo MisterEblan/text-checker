@@ -3,13 +3,15 @@ package com.mreblan.textchecker.factories.impl;
 import java.util.List;
 
 import com.mreblan.textchecker.config.OpenAiProperties;
+import com.mreblan.textchecker.factories.IGptRequestFactory;
 import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.openai.request.OpenAiMessage;
 import com.mreblan.textchecker.models.openai.request.OpenAiRequest;
 
-public class OpenAiRequestFactoryImpl {
+public class OpenAiRequestFactoryImpl implements IGptRequestFactory<OpenAiRequest> {
 
-	public static OpenAiRequest createRequest(Article article) {
+	@Override
+	public OpenAiRequest createRequest(Article article) {
 		String model = "gpt-3.5-turbo";
 		float  temp  = 0.2f;
 
