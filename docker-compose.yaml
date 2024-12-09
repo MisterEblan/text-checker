@@ -8,3 +8,9 @@ services:
         required: true
     ports:
       - "8080:8080"
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2gb
