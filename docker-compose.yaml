@@ -1,0 +1,10 @@
+services:
+  textchecker:
+    build:
+      context: .
+    container_name: textchecker-cont
+    env_file:
+      - path: ./ai.env
+        required: true
+    ports:
+      - "8080:8080"

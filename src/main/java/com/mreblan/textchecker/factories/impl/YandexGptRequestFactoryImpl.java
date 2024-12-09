@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mreblan.textchecker.ai.YandexGptProperties;
+import com.mreblan.textchecker.config.YandexGptProperties;
 import com.mreblan.textchecker.factories.IYandexGptRequestFactory;
 import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.yandexgpt.YandexGptMessage;
@@ -17,17 +17,10 @@ import com.mreblan.textchecker.models.yandexgpt.request.YandexGptRequest;
 @Component 
 public class YandexGptRequestFactoryImpl implements IYandexGptRequestFactory {
 
-    private final YandexGptProperties properties;
-
-    @Autowired
-    public YandexGptRequestFactoryImpl(YandexGptProperties props) {
-        this.properties = props;
-    }
-    
     @Override
     public YandexGptRequest createRequest(Article article) {
         // Определяем модель нейросети
-        String modelUri = String.format("gpt://%s/yandexgpt-lite", properties.getFOLDER_ID());
+        String modelUri = "gpt://%s/yandexgpt-lite".formatted(YandexGptProperties.FOLDER_ID);
         /*
          * Определяем параметры запросы, где
          *
