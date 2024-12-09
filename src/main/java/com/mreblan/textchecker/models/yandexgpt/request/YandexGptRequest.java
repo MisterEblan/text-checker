@@ -11,7 +11,6 @@ import com.mreblan.textchecker.models.yandexgpt.request.YandexGptCompletionOptio
 import lombok.Getter;
 
 @Getter
-@Component
 public class YandexGptRequest {
     private String modelUri;
     private YandexGptCompletionOptions completionOptions;

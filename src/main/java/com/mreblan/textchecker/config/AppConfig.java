@@ -5,6 +5,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mreblan.textchecker.ai.YandexGptProperties;
+import com.mreblan.textchecker.factories.impl.OpenAiRequestFactoryImpl;
+import com.mreblan.textchecker.models.openai.request.OpenAiRequest;
+import com.mreblan.textchecker.services.IAiSender;
+import com.mreblan.textchecker.services.impl.OpenAiService;
+
 // import com.mreblan.textchecker.ai.YandexGptProperties;
 // import com.mreblan.textchecker.factories.impl.YandexGptRequestFactoryImpl;
 
@@ -12,30 +19,24 @@ import org.springframework.web.client.RestClient;
 public class AppConfig {
 
     @Bean
-    public String string() {
-        return new String();
-    }
-
-    @Bean
-    public boolean bool() {
-      return false;
-    }
-    
-    @Bean
-    public float floatNum() {
-        return 0.0f;
-    }
-
-    @Bean
     public RestClient restClient() {
         return RestClient.builder()
-            .baseUrl("https://llm.api.cloud.yandex.net/foundationModels/v1/completion")
             .defaultHeaders(
                 httpHeader -> {
                     httpHeader.set("Content-Type", "application/json");
                 })
             .build();
     }
+
+	@Bean
+	public OpenAiRequestFactoryImpl openAiRequestFactoryImpl() {
+		return new OpenAiRequestFactoryImpl();
+	} 
+
+	@Bean
+	public ObjectMapper objectMapper() {
+		return new ObjectMapper();
+	}
 
     // @Bean
     // public YandexGptProperties yandexGptProperties() {

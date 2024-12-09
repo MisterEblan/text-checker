@@ -6,16 +6,11 @@ import org.springframework.stereotype.Component;
 import lombok.Data;
 
 @Data
-@Component
 public class YandexGptProperties {
     // @Value("${yandex.key.value}")
-    private final String API_KEY;
+    public final static String API_KEY = System.getenv("YANDEX_API_KEY");
 
     // @Value("${yandex.folder.id}")
-    private final String FOLDER_ID;
+    public final static String FOLDER_ID = System.getenv("YANDEX_API_FOLDER");
 
-    public YandexGptProperties(@Value("${yandex.key.value}") String key, @Value("${yandex.folder.id}") String folder) {
-        this.API_KEY = key;
-        this.FOLDER_ID = folder;
-    }
 }

@@ -29,14 +29,13 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class YandexGptSender implements IAiSender {
 
-    private final YandexGptProperties properties;
     private final ObjectMapper objMapper;
     private final IYandexGptRequestFactory requestFactory;
     private final RestClient restClient;
+	private final String YANDEX_URI = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
 
     @Autowired
-    public YandexGptSender(YandexGptProperties props, ObjectMapper objMapper, YandexGptRequestFactoryImpl requestFactory, RestClient client) {
-        this.properties = props;
+    public YandexGptSender(ObjectMapper objMapper, YandexGptRequestFactoryImpl requestFactory, RestClient client) {
         this.objMapper = objMapper;
         this.requestFactory = requestFactory;
         this.restClient = client;
@@ -56,12 +55,12 @@ public class YandexGptSender implements IAiSender {
         log.info("MESSAGES: {}", request.getMessages().toString());
 
         // Отправляем запрос и получаем ответ, сохраняем в response
-        ResponseEntity<String> response = restClient.post().header("Authorization", String.format("Api-key %s", properties.getAPI_KEY()))
-                                                  .header("x-folder-id", properties.getFOLDER_ID())
+        ResponseEntity<YandexGptResponse> response = restClient.post().uri(YANDEX_URI)
+												  .header("Authorization", String.format("Api-key %s", YandexGptProperties.API_KEY))
                                                   .contentType(MediaType.APPLICATION_JSON)
                                                   .body(request)
                                                   .retrieve()
-                                                  .toEntity(String.class);
+                                                  .toEntity(YandexGptResponse.class);
 
 
         // Логируем ответ
@@ -71,22 +70,23 @@ public class YandexGptSender implements IAiSender {
         if (response.getStatusCode().is2xxSuccessful()) {
 
             // Делаем заготовки для обработки ответа
-            YandexGptMessage responseMessage = new YandexGptMessage(null, null);
+            YandexGptMessage responseMessage = (YandexGptMessage) response.getBody().getResult().getAlternatives().get(0)
+													.getMessage();
             Response finalResponse = new Response();
 
             try {
                 // Парсим JSON-ответ, получая из него только нужные элементы
-                responseMessage = processAiResponse(response);
+                //responseMessage = processAiResponse(response);
                 // Проверяем, что поля получившегося сообщения не null
-                if (
-                responseMessage.getRole() != null && 
-                responseMessage.getText() != null
-                ) {
-                    finalResponse   = responseMaker(responseMessage.getText());
-                } else {
-                    log.warn("RESPONSE MESSAGE IS NULL");
-                    finalResponse = new Response(true, "Не удалось распарсить ответ нейросети");
-                }
+                //if (
+                //responseMessage.getRole() != null && 
+                //responseMessage.getText() != null
+                //) {
+                    finalResponse = responseMaker(responseMessage.getText());
+                //} else {
+                //    log.warn("RESPONSE MESSAGE IS NULL");
+                //    finalResponse = new Response(true, "Не удалось распарсить ответ нейросети");
+                //}
             } catch (JsonProcessingException e) {
                 log.error("ERROR PROCESSING JSON!");
                 e.printStackTrace();
