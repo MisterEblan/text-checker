@@ -8,9 +8,12 @@ import org.springframework.stereotype.Component;
 import com.mreblan.textchecker.models.yandexgpt.YandexGptMessage;
 import com.mreblan.textchecker.models.yandexgpt.request.YandexGptCompletionOptions;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 
-@Getter
+@Builder
+@Data
 public class YandexGptRequest {
     private String modelUri;
     private YandexGptCompletionOptions completionOptions;

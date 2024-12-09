@@ -1,5 +1,6 @@
 package com.mreblan.textchecker.services.impl;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ public class ArticleServiceImpl implements IArticleService {
 	}
 
 	@Override
-	public Response openAiProcessArticle(Article article) {
+	public Response openAiProcessArticle(Article article) throws BadRequestException {
 		Article cleanedArticle = htmlParser.deleteTags(article);
 
 		log.info("CLEANED ARTICLE: {}", cleanedArticle.toString());

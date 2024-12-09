@@ -46,6 +46,7 @@ public class OpenAiService implements IAiSender {
 														.body(request)
 														.retrieve()
 														.onStatus(HttpStatusCode::is4xxClientError, (_request, _response) -> {
+															log.error("Русня");
 															throw new BadRequestException("русня");
 														})
 														.toEntity(OpenAiResponse.class);

@@ -1,5 +1,6 @@
 package com.mreblan.textchecker.controllers;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,17 +31,33 @@ public class ArticleController {
     }
 
     @PostMapping("/yandex")
-    public Response yandexCheckArticle(@RequestBody Article article) {
+    public ResponseEntity<?> yandexCheckArticle(@RequestBody Article article) {
         log.info(article.toString());
 
-        return service.yandexProcessArticle(article);
+		Response resp = service.yandexProcessArticle(article);
+
+		return ResponseEntity.ok(resp);
     }
 
     @PostMapping("/openai")
     public ResponseEntity<?> openAiCheckArticle(@RequestBody Article article) {
         log.info(article.toString());
 
-		Response response = service.openAiProcessArticle(article);
+		Response response = null;
+		try {
+			response = service.openAiProcessArticle(article);
+		} catch (BadRequestException e) {
+			log.error(e.getMessage());
+
+			ErrorResponse errResponse = ErrorResponse.builder()
+												.success(false)
+												.message("русня")
+												.build();
+
+			return ResponseEntity
+						.status(HttpStatus.INTERNAL_SERVER_ERROR)
+						.body(errResponse);
+		}
 
 		if (response == null) {
 			ErrorResponse errResponse = ErrorResponse.builder()
