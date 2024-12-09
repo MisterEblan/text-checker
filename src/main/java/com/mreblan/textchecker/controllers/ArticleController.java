@@ -1,8 +1,6 @@
 package com.mreblan.textchecker.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,13 +10,9 @@ import com.mreblan.textchecker.models.Response;
 import com.mreblan.textchecker.services.IArticleService;
 import com.mreblan.textchecker.services.impl.ArticleServiceImpl;
 
-import com.mreblan.textchecker.exceptions.UnsuccessfulRequestException;
-
 import lombok.extern.slf4j.Slf4j;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mreblan.textchecker.models.Article;
-import com.mreblan.textchecker.models.ErrorResponse;
 
 @Slf4j
 @RestController
@@ -32,36 +26,10 @@ public class ArticleController {
         this.service = serviceImpl;
     }
 
-    @PostMapping("/yandex")
-    public Response yandexCheckArticle(@RequestBody Article article) {
-        //log.info(article.toString());
+    @PostMapping
+    public Response getArticle(@RequestBody Article article) {
+        log.info(article.toString());
 
-        return service.yandexProcessArticle(article);
+        return service.processArticle(article);
     }
-
-	@PostMapping("/openai")
-	public ResponseEntity<?> openAiCheckArticle(@RequestBody Article article) {
-		//log.info("ARTICLE FOR OPENAI: {}", article.toString());
-
-		Response response = null;
-		try {
-			response = service.openAiProcessArticle(article);
-
-			if (response == null) {
-				return ResponseEntity
-							.status(HttpStatus.INTERNAL_SERVER_ERROR)
-							.body(new ErrorResponse(false, "Something went wrong"));
-			}
-
-			return ResponseEntity.ok(response);
-		} catch (UnsuccessfulRequestException e) {
-			//log.error(e.getMessage());
-
-			ErrorResponse errResponse = new ErrorResponse(false, "Request to Open AI was not successful"); 
-
-			return ResponseEntity
-						.status(HttpStatus.INTERNAL_SERVER_ERROR)
-						.body(errResponse);
-		}
-	}
 }

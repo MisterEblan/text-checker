@@ -5,6 +5,5 @@ import com.mreblan.textchecker.models.Article;
 
 public interface IArticleService {
     
-    Response yandexProcessArticle(Article article);
-	Response openAiProcessArticle(Article article);
+    Response processArticle(Article article);
 }

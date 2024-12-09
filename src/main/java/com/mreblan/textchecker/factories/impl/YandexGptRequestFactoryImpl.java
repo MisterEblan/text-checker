@@ -17,10 +17,17 @@ import com.mreblan.textchecker.models.yandexgpt.request.YandexGptRequest;
 @Component 
 public class YandexGptRequestFactoryImpl implements IYandexGptRequestFactory {
 
+    private final YandexGptProperties properties;
+
+    @Autowired
+    public YandexGptRequestFactoryImpl(YandexGptProperties props) {
+        this.properties = props;
+    }
+    
     @Override
     public YandexGptRequest createRequest(Article article) {
         // Определяем модель нейросети
-        String modelUri = "gpt://%s/yandexgpt-lite".formatted(YandexGptProperties.FOLDER_ID);
+        String modelUri = String.format("gpt://%s/yandexgpt-lite", properties.getFOLDER_ID());
         /*
          * Определяем параметры запросы, где
          *
