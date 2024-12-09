@@ -23,8 +23,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.mreblan.textchecker.exceptions.IllegalGptTypeException;
 import com.mreblan.textchecker.models.Article;
 import com.mreblan.textchecker.models.ErrorResponse;
+import com.mreblan.textchecker.models.GptType;
 
 @OpenAPIDefinition(info = @Info(title = "Article Checker API", version = "v1"))
 @Slf4j
@@ -58,7 +60,21 @@ public class ArticleController {
     public ResponseEntity<?> yandexCheckArticle(@RequestBody Article article) {
         log.info(article.toString());
 
-		Response resp = service.yandexProcessArticle(article);
+		Response resp = null;
+		try {
+			resp = service.processArticle(article, GptType.YANDEX);
+		} catch (IllegalGptTypeException e) {
+			log.error(e.getMessage());
+
+			ErrorResponse err = ErrorResponse.builder()
+									.success(false)
+									.message("Неправильно указан тип GPT")
+									.build();
+
+			return ResponseEntity
+						.status(HttpStatus.INTERNAL_SERVER_ERROR)
+						.body(err);
+		}
 
 		return ResponseEntity.ok(resp);
     }
@@ -90,18 +106,18 @@ public class ArticleController {
 
 		Response response = null;
 		try {
-			response = service.openAiProcessArticle(article);
-		} catch (BadRequestException e) {
+			response = service.processArticle(article, GptType.OPEN_AI);
+		} catch (IllegalGptTypeException e) {
 			log.error(e.getMessage());
 
-			ErrorResponse errResponse = ErrorResponse.builder()
-												.success(false)
-												.message("русня")
-												.build();
+			ErrorResponse err = ErrorResponse.builder()
+									.success(false)
+									.message("Неправильно указан тип GPT")
+									.build();
 
 			return ResponseEntity
 						.status(HttpStatus.INTERNAL_SERVER_ERROR)
-						.body(errResponse);
+						.body(err);
 		}
 
 		if (response == null) {

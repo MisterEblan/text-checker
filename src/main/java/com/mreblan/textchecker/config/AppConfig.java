@@ -10,6 +10,7 @@ import com.mreblan.textchecker.factories.impl.OpenAiRequestFactoryImpl;
 import com.mreblan.textchecker.factories.impl.YandexGptRequestFactoryImpl;
 import com.mreblan.textchecker.models.openai.request.OpenAiRequest;
 import com.mreblan.textchecker.models.yandexgpt.request.YandexGptRequest;
+import com.mreblan.textchecker.services.IAiSender;
 
 // import com.mreblan.textchecker.ai.YandexGptProperties;
 // import com.mreblan.textchecker.factories.impl.YandexGptRequestFactoryImpl;
