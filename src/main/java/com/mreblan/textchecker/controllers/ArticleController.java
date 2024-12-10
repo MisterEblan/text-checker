@@ -52,7 +52,13 @@ public class ArticleController {
                 )
             ),
             @ApiResponse(responseCode = "500",
-            description = "При отправке запроса что-то пошло не так"
+            description = "При отправке запроса что-то пошло не так",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                        example = "{ \"success\": false, \"message\": \"Что-то пошло не так\"}"
+                    )
+                )
             )
         }
     )
@@ -60,9 +66,9 @@ public class ArticleController {
     public ResponseEntity<?> yandexCheckArticle(@RequestBody Article article) {
         log.info(article.toString());
 
-		Response resp = null;
+		Response response = null;
 		try {
-			resp = service.processArticle(article, GptType.YANDEX);
+			response = service.processArticle(article, GptType.YANDEX);
 		} catch (IllegalGptTypeException e) {
 			log.error(e.getMessage());
 
@@ -71,12 +77,27 @@ public class ArticleController {
 									.message("Неправильно указан тип GPT")
 									.build();
 
+			log.info("ERR: {}", err.toString());
+
 			return ResponseEntity
 						.status(HttpStatus.INTERNAL_SERVER_ERROR)
 						.body(err);
 		}
 
-		return ResponseEntity.ok(resp);
+		if (response == null) {
+
+			ErrorResponse err = ErrorResponse.builder()
+											.success(false)
+											.message("Что-то пошло не так")
+											.build();
+
+			log.info("ERR: {}", err.toString());
+
+			return ResponseEntity
+						.status(HttpStatus.INTERNAL_SERVER_ERROR)
+						.body(err);
+		}
+		return ResponseEntity.ok(response);
     }
 
 
@@ -96,7 +117,13 @@ public class ArticleController {
                 )
             ),
             @ApiResponse(responseCode = "500",
-            description = "При отправке запроса что-то пошло не так"
+            description = "При отправке запроса что-то пошло не так",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                        example = "{ \"success\": false, \"message\": \"Что-то пошло не так\"}"
+                    )
+                )
             )
         }
     )
@@ -115,20 +142,24 @@ public class ArticleController {
 									.message("Неправильно указан тип GPT")
 									.build();
 
+			log.info("ERR: {}", err.toString());
+
 			return ResponseEntity
 						.status(HttpStatus.INTERNAL_SERVER_ERROR)
 						.body(err);
 		}
 
 		if (response == null) {
-			ErrorResponse errResponse = ErrorResponse.builder()
+			ErrorResponse err = ErrorResponse.builder()
 											.success(false)
 											.message("Что-то пошло не так")
 											.build();
 
+			log.info("ERR: {}", err.toString());
+
 			return ResponseEntity
 						.status(HttpStatus.INTERNAL_SERVER_ERROR)
-						.body(errResponse);
+						.body(err);
 		}
 
 		return ResponseEntity.ok(response);

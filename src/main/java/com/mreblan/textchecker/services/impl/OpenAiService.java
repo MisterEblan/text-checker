@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mreblan.textchecker.config.OpenAiProperties;
+import com.mreblan.textchecker.exceptions.BadResponseException;
 import com.mreblan.textchecker.factories.IGptRequestFactory;
 import com.mreblan.textchecker.factories.impl.OpenAiRequestFactoryImpl;
 import com.mreblan.textchecker.models.Article;
@@ -32,10 +33,9 @@ public class OpenAiService implements IAiSender {
 
 	private final RestClient restClient;
 	private final IGptRequestFactory<OpenAiRequest> openAiRequestFactory;
-	private final ObjectMapper objMapper;
 
 	@Override
-	public Response sendArticle(Article article) {
+	public String sendArticle(Article article) throws BadResponseException {
 
 		OpenAiRequest request = openAiRequestFactory.createRequest(article);
 
@@ -49,7 +49,8 @@ public class OpenAiService implements IAiSender {
 														.retrieve()
 														.onStatus(HttpStatusCode::is4xxClientError, (_request, _response) -> {
 															log.error("Русня");
-															throw new BadRequestException("русня");
+															log.error(_response.getStatusText());
+															throw new BadResponseException("русня");
 														})
 														.toEntity(OpenAiResponse.class);
 
@@ -57,27 +58,6 @@ public class OpenAiService implements IAiSender {
 
 		OpenAiMessage responseMessage = response.getBody().getChoices().get(0).getMessage();
 
-		Response finalResponse = null;
-		try {
-			finalResponse = jsonToResponse(responseMessage.getContent());
-
-			return finalResponse;
-		} catch (JsonProcessingException e) {
-			log.error(e.getMessage());
-
-			return new Response(true, "Не удалось распарсить JSON");
-		}
-
-	}
-
-	private Response jsonToResponse(String json) throws JsonProcessingException {
-		json = json.replace("`", "");
-
-		Map<String, Object> tempMap = objMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
-
-		return new Response(
-			(Boolean) tempMap.get("isViolated"),
-			(String)  tempMap.get("description")
-		);
+		return responseMessage.getContent();
 	}
 }
