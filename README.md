@@ -1,3 +1,116 @@
-# What is it?
+# Оглавление
 
-It's the service that cleans content of the article from html-tags and send it to AI to check if the article violates the rules.
+- [Что это](#чтоЭто)
+- [Как использовать](#какИспользовать)
+    - [Ручки](#ручки)
+    - [Запрос](#запрос)
+    - [Ответ](#ответ)
+        - [Успешный](#успех)
+        - [Ошибочный](#ошибка)
+- [Swagger](#сваггер)
+- [Как поднять](#какПоднять)
+    - [Подготовка](#подготовка)
+    - [Docker](#docker)
+
+# <a name="чтоЭто">Что это</a>
+
+Это сервис, который принимает статьи и отправляет в API YandexGPT или OpenAI.
+
+# <a name="какИспользовать">Как использовать</a>
+
+## <a name="ручки">Ручки</a>
+
+Присутствует 2 ручки:
+
+1. `/api/articles/yandex` - для запроса к YandexGPT
+2. `/api/articles/openai` - для запроса к OpenAI
+
+## <a name="запрос">Запрос</a>
+
+На вход принимает следующий запрос:
+
+```JSON
+{
+    "title": "Article Title",
+    "content": "Article Content"
+}
+```
+
+## <a name="ответ">Ответ</a>
+
+### <a name="успех">Успешный</a>
+
+На выходе могут быть следующие ответы:
+
+```JSON
+200 OK
+{
+    "isViolated": true/false,
+    "description": "AI description"
+}
+```
+
+Данный ответ приходит, если всё прошло успешно.
+
+Частный случай ответа:
+
+```JSON
+200 OK
+{
+    "isViolated": true,
+    "description": "Нейросеть не смогла обработать запрос"
+}
+```
+
+Данный ответ приходит, если от нейросети приходит не валидный ответ. Такой может придти, например, от YandexGPT, если приходит текст о поддержке убийств, употребления наркотиков.
+Предполагается, что если пришёл такой ответ, то статья явно не соответствует правилам публикации.
+
+### <a name="ошибка">Ошибочный</a>
+
+```JSON
+500 Internal Server Error
+{
+    "success": false,
+    "message": "Что-то пошло не так"
+}
+```
+
+Такой ответ приходит, если от API нейросетей пришёл ошибочный статус ответа. Например, `403 Forbidden`.
+
+# <a name="сваггер">Swagger</a>
+
+В проекте присутствует документация OpenAPI. Она находится на ручке
+
+```
+/swagger-ui.html
+```
+
+# <a name="какПоднять">Как поднять</a>
+
+## <a name="подготовка">Подготовка</a>
+
+Чтобы всё работало, требуется создать файл `ai.env` со следующим содержанием:
+
+```env
+YANDEX_API_KEY=<Your Yandex Cloud API key>
+YANDEX_API_FOLDER=<Your Yandex Cloud folder ID>
+YANDEX_URI=https://llm.api.cloud.yandex.net/foundationModels/v1/completion
+
+OPENAI_API_KEY=<Your OpenAI API key>
+OPENAI_URI=https://api.openai.com/v1/chat/completions
+```
+
+Положить его нужно в корень проекта.
+
+## <a name="docker">Docker</a>
+
+Заходим в корень проекта и просто пишем:
+
+```shell
+docker compose up -d --build
+```
+
+>[!NOTE] 
+> `--build` нужен только при первоначальном поднятии или при пересборке
+
+Внутри `docker-compose.yaml` указаны `limits`, которые можно поменять в зависимости от того, сколько вы можете выделить под контейнер.
