@@ -48,7 +48,10 @@ public class ArticleServiceImpl implements IArticleService {
 					return null;
 				} catch (JsonProcessingException e) {
 					log.error(e.getMessage());
-					return null;
+					return Response.builder()
+								.isViolated(true)
+								.description("Нейросеть не смогла обработать запрос")
+								.build();
 				}
 				
 			case OPEN_AI:
@@ -60,34 +63,16 @@ public class ArticleServiceImpl implements IArticleService {
 					return null;
 				} catch (JsonProcessingException e) {
 					log.error(e.getMessage());
-					return null;
+					return Response.builder()
+								.isViolated(true)
+								.description("Нейросеть не смогла обработать запрос")
+								.build();
 				}
 			default:
 				throw new IllegalGptTypeException("Illegal GPT TYPE!");
 		} 
 	}
     
-	//@Override
-	//public Response yandexProcessArticle(Article article) {
-	//	Article cleanedArtical = htmlParser.deleteTags(article);
-	//	// Дополнительно логируем очищенный контент
-	//	// Чтобы убедиться, что всё прошло нормально
-	//	log.info("CLEANED ARTICLE: {}", cleanedArtical.toString());
-	//
-	//	// Передаём очищенный контент
-	//	// в нейросеть и получаем оттуда ответ
-	//	return yandexGptSender.sendArticle(cleanedArtical);
-	//}
-	//
-	//@Override
-	//public Response openAiProcessArticle(Article article) throws BadRequestException {
-	//	Article cleanedArticle = htmlParser.deleteTags(article);
-	//
-	//	log.info("CLEANED ARTICLE: {}", cleanedArticle.toString());
-	//
-	//	return openAiService.sendArticle(cleanedArticle);
-	//}
-	
     private Response jsonToResponse(String jsonText) throws JsonProcessingException {
         // Чистим текст от ненужных символов
         jsonText = jsonText.replace("`", "");
